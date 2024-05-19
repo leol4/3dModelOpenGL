@@ -34,7 +34,7 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 
 void Camera::Inputs(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_Q) != GLFW_PRESS)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
 		// Handles key inputs
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

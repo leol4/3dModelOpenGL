@@ -27,6 +27,6 @@ void LightSource::Inputs(GLFWwindow* window) {
 		{
 			Pos += speed * glm::vec3(0.0f, -1.0f, 0.0f);
 		}
-		//Model = glm::translate(Model, Pos);
+		Model = glm::translate(Model, Pos);
 	}
 }

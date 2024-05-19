@@ -9,10 +9,20 @@ const unsigned int height = 900;
 // Vertices coordinates
 Vertex vertices[] =
 { //               COORDINATES           /            COLORS          /           NORMALS         /       TEXTURE COORDINATES    //
-	Vertex{glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-	Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+	Vertex{glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+	Vertex{glm::vec3(1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+	Vertex{glm::vec3(1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)}
+};
+
+
+// Vertices coordinates
+Vertex vertices1[] =
+{ //               COORDINATES           /            COLORS          /           NORMALS         /       TEXTURE COORDINATES    //
+	Vertex{glm::vec3(1.0f, -1.0f,  -2.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(1.0f, 1.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 8.0f)},
+	Vertex{glm::vec3(-1.0f, 1.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(8.0f, 8.0f)},
+	Vertex{glm::vec3(-1.0f, -1.0f,  -2.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(8.0f, 0.0f)}
 };
 
 // Indices for vertices order
@@ -83,7 +93,7 @@ int main()
 	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
 	glViewport(0, 0, width, height);
 
-
+	
 
 	Texture textures[]
 	{
@@ -91,16 +101,26 @@ int main()
 		Texture("textureSpec.png", "specular", 1, GL_RGBA, GL_UNSIGNED_BYTE)
 	};
 
+	Texture textures1[]
+	{
+		Texture("texture1.png", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture("texture1Spec.png", "specular", 1, GL_RGBA, GL_UNSIGNED_BYTE)
+	};
+
 
 
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
+	Shader shaderProgram1("default.vert", "default.frag");
 	// Store mesh data in vectors for the mesh
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
+	std::vector <Vertex> verts1(vertices1, vertices1 + sizeof(vertices1) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
 	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
+	std::vector <Texture> tex1(textures1, textures1 + sizeof(textures1) / sizeof(Texture));
 	// Create floor mesh
 	Mesh floor(verts, ind, tex);
+	Mesh floor1(verts1, ind, tex);
 
 
 	// Shader for light cube
@@ -116,10 +136,10 @@ int main()
 	LightSource lightsource;
 	lightsource.Model = glm::translate(lightsource.Model, lightsource.Pos);
 
-	glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::mat4 objectModel = glm::mat4(1.0f);
-	objectModel = glm::translate(objectModel, objectPos);
-
+	shaderProgram.Activate();
+	//shaderprog
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(floor.objectModel));
+	glUseProgram(0);
 
 
 
@@ -130,9 +150,11 @@ int main()
 	Camera camera(width, height, glm::vec3(0.0f, 1.0f, 2.0f));
 	float type = 0;
 	bool isPressed = false;
+	double time = 0;
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
+		time += 0.025;
 		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !isPressed)
 		{
 			isPressed = true;
@@ -156,7 +178,15 @@ int main()
 
 		shaderProgram.Activate();
 		//shaderprog
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(floor.objectModel));
+		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightsource.Color.x, lightsource.Color.y, lightsource.Color.z, lightsource.Color.w);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightsource.Pos.x, lightsource.Pos.y, lightsource.Pos.z);
+		glUniform1f(glGetUniformLocation(shaderProgram.ID, "type"), type);
+
+
+		shaderProgram1.Activate();
+		//shaderprog
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(floor1.objectModel));
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightsource.Color.x, lightsource.Color.y, lightsource.Color.z, lightsource.Color.w);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightsource.Pos.x, lightsource.Pos.y, lightsource.Pos.z);
 		glUniform1f(glGetUniformLocation(shaderProgram.ID, "type"), type);
@@ -170,14 +200,21 @@ int main()
 
 		// Handles camera inputs
 		camera.Inputs(window);
-
+		floor.Inputs(window);
 		lightsource.Inputs(window);
+
+		// Get totetde idiot
+		if (time > 10)
+			time = 0;
+		floor1.rotateMesh(time);
+
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
 
 		// Draws different meshes
 		floor.Draw(shaderProgram, camera);
+		floor1.Draw(shaderProgram1, camera);
 		light.Draw(lightShader, camera);
 
 		// Swap the back buffer with the front buffer
@@ -190,6 +227,7 @@ int main()
 
 	// Delete all the objects we've created
 	shaderProgram.Delete();
+	shaderProgram1.Delete();
 	lightShader.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);
