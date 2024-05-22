@@ -1,5 +1,7 @@
 #include"Mesh.h"
 #include"Lightsource.h"
+#include <chrono>
+#include "Render.h"
 
 const unsigned int width = 1600;
 const unsigned int height = 900;
@@ -150,11 +152,14 @@ int main()
 	Camera camera(width, height, glm::vec3(0.0f, 1.0f, 2.0f));
 	float type = 0;
 	bool isPressed = false;
-	double time = 0;
+	auto start = std::chrono::high_resolution_clock::now();
+	auto current = start;
+	double delta_time;
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
-		time += 0.025;
+		current = std::chrono::high_resolution_clock::now();
+		delta_time = std::chrono::duration_cast<std::chrono::milliseconds>(current - start).count();
 		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !isPressed)
 		{
 			isPressed = true;
@@ -203,10 +208,10 @@ int main()
 		floor.Inputs(window);
 		lightsource.Inputs(window);
 
-		// Get totetde idiot
-		if (time > 10)
-			time = 0;
-		floor1.rotateMesh(time);
+		// render, but not working
+		Render(delta_time);
+		// Get rotated
+		floor1.rotateMesh(delta_time);
 
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);

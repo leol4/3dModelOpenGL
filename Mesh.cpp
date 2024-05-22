@@ -99,6 +99,8 @@ void Mesh::Inputs(GLFWwindow* window) {
 }
 
 void Mesh::rotateMesh(double time) {
+	time = time / 1000;
+	time = time - (int)time / 10 * 10;
 	if (time < 2.5) {
 		objectModel = glm::translate(objectModel, glm::vec3(0.005f, 0.0f, 0.0f));
 		objectModel = glm::translate(objectModel, glm::vec3(0.0f, 0.005f, 0.0f));
